@@ -120,8 +120,11 @@
             <label for="desiredWeaponCount">所需专武数量:</label>
             <input type="number" id="desiredWeaponCount" value="1">
             
-            <label for="pityCount">已垫抽数:</label>
+            <label for="pityCount">UP池已垫抽数:</label>
             <input type="number" id="pityCount" value="0">
+            
+            <label for="weaponPityCount">武器池已垫抽数:</label>
+            <input type="number" id="weaponPityCount" value="0">
 			
             <label for="doesBigPityCheckbox"><input type="checkbox" id="doesBigPityCheckbox">角色为大保底</label>
             <label for="doesWeaponBigPityCheckbox"><input type="checkbox" id="doesWeaponBigPityCheckbox">武器为大保底</label>
@@ -162,6 +165,7 @@
             const primogems = parseInt(document.getElementById("primogems").value);
             const intertwinedFates = parseInt(document.getElementById("intertwinedFates").value);
 			const pityCount = parseInt(document.getElementById("pityCount").value);
+			const weaponPityCount = parseInt(document.getElementById("pityCount").value);
 			const doesBigPity = document.getElementById("doesBigPityCheckbox").checked;
 			const doesWeaponBigPity = document.getElementById("doesWeaponBigPityCheckbox").checked;
 
@@ -169,11 +173,11 @@
             desiredWeaponCount = parseInt(document.getElementById("desiredWeaponCount").value);
 			simulationCount = parseInt(document.getElementById("simulationCount").value);
 
-            gachaSimulation(primogems, intertwinedFates, pityCount, doesBigPity, doesWeaponBigPity);
+            gachaSimulation(primogems, intertwinedFates, pityCount, weaponPityCount, doesBigPity, doesWeaponBigPity);
 			displayResult();
         }
 
-        function gachaSimulation(primogems, intertwinedFates, oriPityCount, doesBigPity, doesWeaponBigPity) {
+        function gachaSimulation(primogems, intertwinedFates, oriPityCount, oriWeaponPityCount, doesBigPity, doesWeaponBigPity) {
 			const constantFates = Math.floor(primogems / 160) + intertwinedFates;
 			const totalDesiredCount = desiredCharacterCount + desiredWeaponCount;
 			leftFatesTotal = 0;
@@ -211,6 +215,7 @@
 						}
 				}
 				
+				pityCount = oriWeaponPityCount;
 				bigPityCount = doesWeaponBigPity ? 1 : 0;
 				
 				while(upCount < totalDesiredCount && totalFates > 0){
