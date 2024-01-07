@@ -129,7 +129,10 @@
             <label for="doesBigPityCheckbox"><input type="checkbox" id="doesBigPityCheckbox">角色为大保底</label>
             <label for="doesWeaponBigPityCheckbox"><input type="checkbox" id="doesWeaponBigPityCheckbox">武器为大保底</label>
 
-            <p>默认先抽角色再抽专武。</p>
+            <select id="simulationMode">
+                <option value="character">先抽角色</option>
+                <option value="weapon">先抽专武</option>
+            </select>
 			
 			<hr>
 			
@@ -157,7 +160,7 @@
         let sortedResultsSeparate = [];
         let sortedResultsCombined = [];
 		let leftFatesTotal = 0;
-		let desiredCharacterCount = 0, desiredWeaponCount = 0;
+		let desiredCharacterCount = 0, desiredWeaponCount = 0, simulationMode = 'character';
 		
 		let simulationCount = 10000000;
 	
@@ -171,6 +174,7 @@
 
             desiredCharacterCount = parseInt(document.getElementById("desiredCharacterCount").value);
             desiredWeaponCount = parseInt(document.getElementById("desiredWeaponCount").value);
+            simulationMode = document.getElementById("simulationMode").value;
 			simulationCount = parseInt(document.getElementById("simulationCount").value);
 
             gachaSimulation(primogems, intertwinedFates, pityCount, weaponPityCount, doesBigPity, doesWeaponBigPity);
@@ -189,13 +193,43 @@
 				let upCount = 0;
 				let permanentCount = 0;
 				
-				let pityCount = oriPityCount;
-				let bigPityCount = doesBigPity ? 1 : 0;
-				let epitomizedPathCount = 0;
-
-				// 模拟抽角色
-				while(upCount < desiredCharacterCount && totalFates > 0){
-						totalFates -= 1;
+				if(simulationMode === "character"){
+					let c = simulateCharacter(totalFates, oriPityCount, doesBigPity ? 1 : 0);
+					totalFates = c[0];
+					upCount += c[1];
+					permanentCount += c[2];
+					
+					let w = simulateWeapon(totalFates, oriWeaponPityCount, doesWeaponBigPity ? 1 : 0);
+					totalFates = w[0];
+					upCount += w[1];
+					permanentCount += w[2];
+				}else{
+					let w = simulateWeapon(totalFates, oriWeaponPityCount, doesWeaponBigPity ? 1 : 0);
+					totalFates = w[0];
+					upCount += w[1];
+					permanentCount += w[2];
+					
+					let c = simulateCharacter(totalFates, oriPityCount, doesBigPity ? 1 : 0);
+					totalFates = c[0];
+					upCount += c[1];
+					permanentCount += c[2];
+				}
+				
+				resultArray[upCount][permanentCount]++;
+				if(totalFates > 0){
+					leftFatesTotal += totalFates;
+				}
+			}
+			
+			updateSortedResults(resultArray);
+		}
+		
+		function simulateCharacter(fates, pityCount, bigPityCount){
+				let upCount = 0;
+				let permanentCount = 0;
+				
+				while(upCount < desiredCharacterCount && fates > 0){
+						fates -= 1;
 						pityCount++;
 						
 					const probability = pityCount > 73 ? 0.006 + 0.06 * (pityCount - 73) : 0.006;
@@ -214,12 +248,17 @@
 							pityCount = 0;
 						}
 				}
+				return [fates, upCount, permanentCount];
+		}
+		
+		function simulateWeapon(fates, pityCount, bigPityCount){
+				let upCount = 0;
+				let permanentCount = 0;
 				
-				pityCount = oriWeaponPityCount;
-				bigPityCount = doesWeaponBigPity ? 1 : 0;
+				let epitomizedPathCount = 0;
 				
-				while(upCount < totalDesiredCount && totalFates > 0){
-						totalFates -= 1;
+				while(upCount < desiredWeaponCount && fates > 0){
+						fates -= 1;
 						pityCount++;
 						
 					const probability = pityCount > 63 ? 0.007 + 0.07 * (pityCount - 63) : 0.007;
@@ -245,14 +284,7 @@
 							pityCount = 0;
 						}
 				}
-				
-				resultArray[upCount][permanentCount]++;
-				if(totalFates > 0){
-					leftFatesTotal += totalFates;
-				}
-			}
-			
-			updateSortedResults(resultArray);
+				return [fates, upCount, permanentCount];
 		}
 		
 		function updateSortedResults(resultArray) {
@@ -311,6 +343,9 @@
             simulationResultDiv.innerHTML = ""; 
             let currentDisplayMode = document.getElementById("displayMode").value;
 			
+			const fst = simulationMode === "character" ? "UP角色" : "专武";
+			const snd = simulationMode !== "character" ? "UP角色" : "专武";
+			
             if (currentDisplayMode === 'separate') {
 				for (let i = 0; i < sortedResultsSeparate.length; i++) {
 					const result = sortedResultsSeparate[i];
@@ -320,7 +355,7 @@
                     if(result.upCount === desiredCharacterCount + desiredWeaponCount){
 						rowDiv.classList.add('green-text');
 					}
-					rowDiv.innerText = `抽到${upCharacters}个UP角色，${upWeapons}个专武，${result.permanentCount}个常驻、非定轨角色、武器，模拟中发生：${result.times}次，概率为：${result.probability}`;
+					rowDiv.innerText = `抽到${upCharacters}个${fst}，${upWeapons}个${snd}，${result.permanentCount}个常驻、非定轨角色、武器，模拟中发生：${result.times}次，概率为：${result.probability}`;
 					simulationResultDiv.appendChild(rowDiv);
 				}
 			}else{
@@ -332,7 +367,7 @@
                     if(result.upCount === desiredCharacterCount + desiredWeaponCount){
 						rowDiv.classList.add('green-text');
 					}
-					rowDiv.innerText = `抽到${upCharacters}个UP角色，${upWeapons}个专武，模拟中发生：${result.times}次，概率为：${result.probability}`;
+					rowDiv.innerText = `抽到${upCharacters}个${fst}，${upWeapons}个${snd}，模拟中发生：${result.times}次，概率为：${result.probability}`;
 					simulationResultDiv.appendChild(rowDiv);
 				}
 			}
