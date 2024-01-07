@@ -288,7 +288,7 @@
 					const rowDiv = document.createElement("div");
 					const upCharacters = result.upCount > desiredCharacterCount ? desiredCharacterCount : result.upCount;
 					const upWeapons = result.upCount > desiredCharacterCount ? result.upCount - desiredCharacterCount : 0;
-                    if(upWeapons === desiredWeaponCount){
+                    if(result.upCount === desiredCharacterCount + desiredWeaponCount){
 						rowDiv.classList.add('green-text');
 					}
 					rowDiv.innerText = `抽到${upCharacters}个UP角色，${upWeapons}个专武，${result.permanentCount}个常驻、非定轨角色、武器，概率为：${result.probability}`;
@@ -300,7 +300,7 @@
 					const rowDiv = document.createElement("div");
 					const upCharacters = result.upCount > desiredCharacterCount ? desiredCharacterCount : result.upCount;
 					const upWeapons = result.upCount > desiredCharacterCount ? result.upCount - desiredCharacterCount : 0;
-                    if(upWeapons === desiredWeaponCount){
+                    if(result.upCount === desiredCharacterCount + desiredWeaponCount){
 						rowDiv.classList.add('green-text');
 					}
 					rowDiv.innerText = `抽到${upCharacters}个UP角色，${upWeapons}个专武，概率为：${result.probability}`;
