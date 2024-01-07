@@ -136,14 +136,14 @@
             <label for="simulationCount">模拟次数:</label>
             <input type="number" id="simulationCount" value="10000000">
 			
-			<p>考虑到计算效率，默认模拟次数是一百万次，追求精确可加一个0。</p>
+			<p>考虑到计算效率，默认模拟次数是一百万次（小数点后第二位可能不准），追求精确可加一个0。</p>
 
             <button onclick="runSimulation()">开始模拟</button>
         </div>
 
         <div class="result-box">
-            <h2>频率估计概率：<span id="resultProbability"></span></h2>
-			<p>抽全后平均剩余抽数：<span id="leftFates"></span></p>
+            <h2>频率估计概率：<span id="resultProbability">0.00%</span></h2>
+			<p>抽全后平均剩余抽数：<span id="leftFates">0</span>抽</p>
             <label for="displayMode">显示模式:</label>
             <select id="displayMode" onchange="displayResult()">
                 <option value="separate">区分常驻、非定轨武器数量</option>
@@ -172,11 +172,11 @@
             desiredWeaponCount = parseInt(document.getElementById("desiredWeaponCount").value);
 			simulationCount = parseInt(document.getElementById("simulationCount").value);
 
-            gachaSimulation(primogems, intertwinedFates, desiredCharacterCount, desiredWeaponCount, pityCount, doesBigPity, doesWeaponBigPity);
+            gachaSimulation(primogems, intertwinedFates, pityCount, doesBigPity, doesWeaponBigPity);
 			displayResult();
         }
 
-        function gachaSimulation(primogems, intertwinedFates, desiredCharacterCount, desiredWeaponCount, oriPityCount, doesBigPity, doesWeaponBigPity) {
+        function gachaSimulation(primogems, intertwinedFates, oriPityCount, doesBigPity, doesWeaponBigPity) {
 			const constantFates = Math.floor(primogems / 160) + intertwinedFates;
 			const totalDesiredCount = desiredCharacterCount + desiredWeaponCount;
 			leftFatesTotal = 0;
