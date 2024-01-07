@@ -54,6 +54,10 @@
             border-radius: 5px;
             width: calc(100% - 16px);
         }
+		
+		#doesBigPityCheckbox, #doesWeaponBigPityCheckbox {
+		    width: 16px
+		}
 
         p {
             margin: 10px 0;
@@ -121,6 +125,9 @@
             
             <label for="pityCount">已垫抽数:</label>
             <input type="number" id="pityCount" value="0">
+			
+            <label for="doesBigPityCheckbox"><input type="checkbox" id="doesBigPityCheckbox">角色为大保底</label>
+            <label for="doesWeaponBigPityCheckbox"><input type="checkbox" id="doesWeaponBigPityCheckbox">武器为大保底</label>
 
             <p>默认先抽角色再抽专武。</p>
 			
@@ -158,16 +165,18 @@
             const primogems = parseInt(document.getElementById("primogems").value);
             const intertwinedFates = parseInt(document.getElementById("intertwinedFates").value);
 			const pityCount = parseInt(document.getElementById("pityCount").value);
-			
+			const doesBigPity = document.getElementById("doesBigPityCheckbox").checked;
+			const doesWeaponBigPity = document.getElementById("doesWeaponBigPityCheckbox").checked;
+
             desiredCharacterCount = parseInt(document.getElementById("desiredCharacterCount").value);
             desiredWeaponCount = parseInt(document.getElementById("desiredWeaponCount").value);
 			simulationCount = parseInt(document.getElementById("simulationCount").value);
 
-            gachaSimulation(primogems, intertwinedFates, desiredCharacterCount, desiredWeaponCount, pityCount)
+            gachaSimulation(primogems, intertwinedFates, desiredCharacterCount, desiredWeaponCount, pityCount, doesBigPity, doesWeaponBigPity);
 			displayResult();
         }
 
-        function gachaSimulation(primogems, intertwinedFates, desiredCharacterCount, desiredWeaponCount, oriPityCount) {
+        function gachaSimulation(primogems, intertwinedFates, desiredCharacterCount, desiredWeaponCount, oriPityCount, doesBigPity, doesWeaponBigPity) {
 			const constantFates = Math.floor(primogems / 160) + intertwinedFates;
 			const totalDesiredCount = desiredCharacterCount + desiredWeaponCount;
 			leftFatesTotal = 0;
@@ -180,7 +189,7 @@
 				let permanentCount = 0;
 				
 				let pityCount = oriPityCount;
-				let bigPityCount = 0;
+				let bigPityCount = doesBigPity ? 1 : 0;
 				let epitomizedPathCount = 0;
 
 				// 模拟抽角色
@@ -204,6 +213,8 @@
 							pityCount = 0;
 						}
 				}
+				
+				bigPityCount = doesWeaponBigPity ? 1 : 0;
 				
 				while(upCount < totalDesiredCount && totalFates > 0){
 					const probability = pityCount > 63 ? 0.007 + 0.07 * (pityCount - 63) : 0.007;
