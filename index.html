@@ -253,31 +253,36 @@
 		function updateSortedResults(resultArray) {
             sortedResultsSeparate = [];
             sortedResultsCombined = [];
+			
+			let containsDesiration = false;
 
             for (let i = 0; i < resultArray.length; i++) {
-				let combinedProbability = 0;
+				let combinedTimes = 0;
                 for (let j = 0; j < resultArray[i].length; j++) {
                     if (resultArray[i][j]) {
 						sortedResultsSeparate.push({
                                 upCount: i,
                                 permanentCount: j,
+								times: resultArray[i][j],
                                 probability: (resultArray[i][j] / simulationCount * 100).toFixed(2) + "%"
                             });
 							
-						combinedProbability += resultArray[i][j];
+						combinedTimes += resultArray[i][j];
                     }
                 }
-				if(combinedProbability){
-					const p = (combinedProbability / simulationCount * 100).toFixed(2) + "%";
+				if(combinedTimes){
+					const p = (combinedTimes / simulationCount * 100).toFixed(2) + "%";
 					
 					sortedResultsCombined.push({
                         upCount: i,
+						times: combinedTimes,
                         probability: p
                     });
 					
 					if(i === desiredCharacterCount + desiredWeaponCount){
 						document.getElementById("resultProbability").textContent = p;
-						document.getElementById("leftFates").textContent = Math.floor(leftFatesTotal / combinedProbability);
+						document.getElementById("leftFates").textContent = Math.floor(leftFatesTotal / combinedTimes);
+						containsDesiration = true;
 					}
 				}
             }
@@ -289,6 +294,11 @@
             sortedResultsCombined.sort((a, b) => {
                 return parseFloat(b.probability) - parseFloat(a.probability);
             });
+			
+			if(!containsDesiration){
+				document.getElementById("resultProbability").textContent = "0.00%";
+				document.getElementById("leftFates").textContent = "0";
+			}
         }
 		
 		 function displayResult() {
@@ -305,7 +315,7 @@
                     if(result.upCount === desiredCharacterCount + desiredWeaponCount){
 						rowDiv.classList.add('green-text');
 					}
-					rowDiv.innerText = `抽到${upCharacters}个UP角色，${upWeapons}个专武，${result.permanentCount}个常驻、非定轨角色、武器，概率为：${result.probability}`;
+					rowDiv.innerText = `抽到${upCharacters}个UP角色，${upWeapons}个专武，${result.permanentCount}个常驻、非定轨角色、武器，模拟中发生：${result.times}次，概率为：${result.probability}`;
 					simulationResultDiv.appendChild(rowDiv);
 				}
 			}else{
@@ -317,7 +327,7 @@
                     if(result.upCount === desiredCharacterCount + desiredWeaponCount){
 						rowDiv.classList.add('green-text');
 					}
-					rowDiv.innerText = `抽到${upCharacters}个UP角色，${upWeapons}个专武，概率为：${result.probability}`;
+					rowDiv.innerText = `抽到${upCharacters}个UP角色，${upWeapons}个专武，模拟中发生：${result.times}次，概率为：${result.probability}`;
 					simulationResultDiv.appendChild(rowDiv);
 				}
 			}
