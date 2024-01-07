@@ -249,7 +249,7 @@
             for (let i = 0; i < resultArray.length; i++) {
 				let combinedProbability = 0;
                 for (let j = 0; j < resultArray[i].length; j++) {
-                    if (resultArray[i][j] !== 0) {
+                    if (resultArray[i][j]) {
 						sortedResultsSeparate.push({
                                 upCount: i,
                                 permanentCount: j,
@@ -259,7 +259,7 @@
 						combinedProbability += resultArray[i][j];
                     }
                 }
-				if(combinedProbability !== 0){
+				if(combinedProbability){
 					const p = (combinedProbability / simulationCount * 100).toFixed(2) + "%";
 					
 					sortedResultsCombined.push({
