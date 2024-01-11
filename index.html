@@ -111,8 +111,8 @@
             <label for="primogems">原石数:</label>
             <input type="number" id="primogems" value="0">
 
-            <label for="intertwinedFates">纠缠之缘数:</label>
-            <input type="number" id="intertwinedFates" value="0">
+            <label for="summons">纠缠之缘数:</label>
+            <input type="number" id="summons" value="0">
 
             <label for="desiredCharacterCount">所需UP角色数量:</label>
             <input type="number" id="desiredCharacterCount" value="1">
@@ -146,7 +146,7 @@
 
         <div class="result-box">
             <h2>频率估计概率：<span id="resultProbability">0.00%</span></h2>
-			<p>抽全后平均剩余抽数：<span id="leftFates">0</span>抽</p>
+			<p>抽全后平均剩余抽数：<span id="leftsummons">0</span>抽</p>
             <label for="displayMode">显示模式:</label>
             <select id="displayMode" onchange="displayResult()">
                 <option value="separate">区分常驻、非定轨武器数量</option>
@@ -159,14 +159,14 @@
     <script>
         let sortedResultsSeparate = [];
         let sortedResultsCombined = [];
-		let leftFatesTotal = 0;
+		let leftsummonsTotal = 0;
 		let desiredCharacterCount = 0, desiredWeaponCount = 0, simulationMode = 'character';
 		
 		let simulationCount = 10000000;
 	
         function runSimulation() {
             const primogems = parseInt(document.getElementById("primogems").value);
-            const intertwinedFates = parseInt(document.getElementById("intertwinedFates").value);
+            const summons = parseInt(document.getElementById("summons").value);
 			const pityCount = parseInt(document.getElementById("pityCount").value);
 			const weaponPityCount = parseInt(document.getElementById("weaponPityCount").value);
 			const doesBigPity = document.getElementById("doesBigPityCheckbox").checked;
@@ -177,59 +177,59 @@
             simulationMode = document.getElementById("simulationMode").value;
 			simulationCount = parseInt(document.getElementById("simulationCount").value);
 
-            gachaSimulation(primogems, intertwinedFates, pityCount, weaponPityCount, doesBigPity, doesWeaponBigPity);
+            gachaSimulation(primogems, summons, pityCount, weaponPityCount, doesBigPity, doesWeaponBigPity);
 			displayResult();
         }
 
-        function gachaSimulation(primogems, intertwinedFates, oriPityCount, oriWeaponPityCount, doesBigPity, doesWeaponBigPity) {
-			const constantFates = Math.floor(primogems / 160) + intertwinedFates;
+        function gachaSimulation(primogems, summons, oriPityCount, oriWeaponPityCount, doesBigPity, doesWeaponBigPity) {
+			const constantSummons = Math.floor(primogems / 160) + summons;
 			const totalDesiredCount = desiredCharacterCount + desiredWeaponCount;
-			leftFatesTotal = 0;
+			leftsummonsTotal = 0;
 			const resultArray = Array.from({ length: desiredCharacterCount + desiredWeaponCount + 1 }, () => Array(desiredCharacterCount + desiredWeaponCount * 2 + 1).fill(0));
 
 			for (let i = 0; i < simulationCount; i++) {
-				let totalFates = constantFates;
+				let totalSummons = constantSummons;
 				
 				let upCount = 0;
-				let permanentCount = 0;
+				let standardCount = 0;
 				
 				if(simulationMode === "character"){
-					let c = simulateCharacter(totalFates, oriPityCount, doesBigPity ? 1 : 0);
-					totalFates = c[0];
+					let c = simulateCharacter(totalSummons, oriPityCount, doesBigPity ? 1 : 0);
+					totalSummons = c[0];
 					upCount += c[1];
-					permanentCount += c[2];
+					standardCount += c[2];
 					
-					let w = simulateWeapon(totalFates, oriWeaponPityCount, doesWeaponBigPity ? 1 : 0);
-					totalFates = w[0];
+					let w = simulateWeapon(totalSummons, oriWeaponPityCount, doesWeaponBigPity ? 1 : 0);
+					totalSummons = w[0];
 					upCount += w[1];
-					permanentCount += w[2];
+					standardCount += w[2];
 				}else{
-					let w = simulateWeapon(totalFates, oriWeaponPityCount, doesWeaponBigPity ? 1 : 0);
-					totalFates = w[0];
+					let w = simulateWeapon(totalSummons, oriWeaponPityCount, doesWeaponBigPity ? 1 : 0);
+					totalSummons = w[0];
 					upCount += w[1];
-					permanentCount += w[2];
+					standardCount += w[2];
 					
-					let c = simulateCharacter(totalFates, oriPityCount, doesBigPity ? 1 : 0);
-					totalFates = c[0];
+					let c = simulateCharacter(totalSummons, oriPityCount, doesBigPity ? 1 : 0);
+					totalSummons = c[0];
 					upCount += c[1];
-					permanentCount += c[2];
+					standardCount += c[2];
 				}
 				
-				resultArray[upCount][permanentCount]++;
-				if(totalFates > 0){
-					leftFatesTotal += totalFates;
+				resultArray[upCount][standardCount]++;
+				if(totalSummons > 0){
+					leftsummonsTotal += totalSummons;
 				}
 			}
 			
 			updateSortedResults(resultArray);
 		}
 		
-		function simulateCharacter(fates, pityCount, bigPityCount){
+		function simulateCharacter(summons, pityCount, bigPityCount){
 				let upCount = 0;
-				let permanentCount = 0;
+				let standardCount = 0;
 				
-				while(upCount < desiredCharacterCount && fates > 0){
-						fates -= 1;
+				while(upCount < desiredCharacterCount && summons > 0){
+						summons -= 1;
 						pityCount++;
 						
 					const probability = pityCount > 73 ? 0.006 + 0.06 * (pityCount - 73) : 0.006;
@@ -242,23 +242,23 @@
 							  bigPityCount = 0;
 							}else{
 							// 抽到常驻角色
-								permanentCount++;
+								standardCount++;
 								bigPityCount++;
 							}
 							pityCount = 0;
 						}
 				}
-				return [fates, upCount, permanentCount];
+				return [summons, upCount, standardCount];
 		}
 		
-		function simulateWeapon(fates, pityCount, bigPityCount){
+		function simulateWeapon(summons, pityCount, bigPityCount){
 				let upCount = 0;
-				let permanentCount = 0;
+				let standardCount = 0;
 				
 				let epitomizedPathCount = 0;
 				
-				while(upCount < desiredWeaponCount && fates > 0){
-						fates -= 1;
+				while(upCount < desiredWeaponCount && summons > 0){
+						summons -= 1;
 						pityCount++;
 						
 					const probability = pityCount > 63 ? 0.007 + 0.07 * (pityCount - 63) : 0.007;
@@ -271,20 +271,20 @@
 								  upCount++;
 								  epitomizedPathCount = 0;
 							  }else{
-								permanentCount++;
+								standardCount++;
 								epitomizedPathCount++;
 							  }
 							  bigPityCount = 0;
 							}else{
 							// 抽到常驻武器
-								permanentCount++;
+								standardCount++;
 								bigPityCount++;
 								epitomizedPathCount++;
 							}
 							pityCount = 0;
 						}
 				}
-				return [fates, upCount, permanentCount];
+				return [summons, upCount, standardCount];
 		}
 		
 		function updateSortedResults(resultArray) {
@@ -299,7 +299,7 @@
                     if (resultArray[i][j]) {
 						sortedResultsSeparate.push({
                                 upCount: i,
-                                permanentCount: j,
+                                standardCount: j,
 								times: resultArray[i][j],
                                 probability: (resultArray[i][j] / simulationCount * 100).toFixed(2) + "%"
                             });
@@ -318,7 +318,7 @@
 					
 					if(i === desiredCharacterCount + desiredWeaponCount){
 						document.getElementById("resultProbability").textContent = p;
-						document.getElementById("leftFates").textContent = Math.floor(leftFatesTotal / combinedTimes);
+						document.getElementById("leftsummons").textContent = Math.floor(leftsummonsTotal / combinedTimes);
 						containsDesiration = true;
 					}
 				}
@@ -334,7 +334,7 @@
 			
 			if(!containsDesiration){
 				document.getElementById("resultProbability").textContent = "0.00%";
-				document.getElementById("leftFates").textContent = "0";
+				document.getElementById("leftsummons").textContent = "0";
 			}
         }
 		
@@ -355,7 +355,7 @@
                     if(result.upCount === desiredCharacterCount + desiredWeaponCount){
 						rowDiv.classList.add('green-text');
 					}
-					rowDiv.innerText = `抽到${upCharacters}个${fst}，${upWeapons}个${snd}，${result.permanentCount}个常驻、非定轨角色、武器，模拟中发生：${result.times}次，概率为：${result.probability}`;
+					rowDiv.innerText = `抽到${upCharacters}个${fst}，${upWeapons}个${snd}，${result.standardCount}个常驻、非定轨角色、武器，模拟中发生：${result.times}次，概率为：${result.probability}`;
 					simulationResultDiv.appendChild(rowDiv);
 				}
 			}else{
